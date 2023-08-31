@@ -26,3 +26,6 @@ jobs:
     - name: Sync with S3
       run: |
         aws s3 sync ./out s3://decision-dice-motivators
+    - name: Clear cloudfront cache
+      run: |
+        aws cloudfront create-invalidation --distribution-id E33YSSGHUP7B9Q --paths "/*"
