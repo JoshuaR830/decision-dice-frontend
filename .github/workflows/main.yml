@@ -25,4 +25,4 @@ jobs:
         npm run build
     - name: Sync with S3
       run: |
-        aws s3 sync ./out /s3://decision-dice-motivators
+        aws s3 sync ./out s3://decision-dice-motivators

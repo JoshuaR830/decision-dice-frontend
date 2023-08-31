@@ -18,7 +18,7 @@ type CategoryFeedData = {
 
 export default function Home() {
   const [myData, setMyData] = useState<CategoryFeedData>();
-  var userName = "Joshua-R";
+  var userName = "JoshuC";
   useEffect(() => {
     fetch(`https://decisions.joshuarichardson.dev/feeds/category/${userName}`)
       .then((res) => res.json())
