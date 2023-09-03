@@ -2,7 +2,11 @@
 
 import { Box, Typography, Button } from '@mui/material'
 import Category from '../components/category'
+import Motivator from '../components/motivator'
 import { useState, useEffect } from 'react'
+import { API_BASE_URL } from '../constants'
+import { replaceSpaces } from '@/helpers/stringReplacementHelper'
+import { MotivatorData } from '@/components/motivator'
 
 type CategoryFeedData = {
   categories: string[]
@@ -17,22 +21,53 @@ type CategoryFeedData = {
 // }
 
 export default function Home() {
-  const [myData, setMyData] = useState<CategoryFeedData>();
+  const [categoryFeed, setCategoryFeed] = useState<CategoryFeedData>();
+  const [returnedMotivator, setReturnedMotivator] = useState<MotivatorData>()
   var userName = "JoshuC";
+
+  function getRandomInteger(max: number): number {
+    return Math.floor(Math.random() * max)
+  }
+
+  function selectRandomMotivator(motivators: string[]): string {
+    const index = getRandomInteger(motivators.length);
+    return motivators[index];
+  }
+
+  function getMotivators(category: string) {
+    fetch(replaceSpaces(`${API_BASE_URL}/feeds/motivator/${userName}/${category}`))
+    .then((res) => res.json())
+    .then((data) => {
+      const motivatorName = selectRandomMotivator(data.motivators);
+      getMotivator(category, motivatorName)
+    })
+  }
+
+  function getMotivator(category: string, motivator: string) {
+    fetch(replaceSpaces(`${API_BASE_URL}/motivators/${userName}/${category}/${motivator}`))
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+      setReturnedMotivator(data);
+    })
+  }
+
   useEffect(() => {
-    fetch(`https://decisions.joshuarichardson.dev/feeds/category/${userName}`)
+    fetch(replaceSpaces(`${API_BASE_URL}/feeds/category/${userName}`))
       .then((res) => res.json())
       .then((data) => {
-        setMyData(data)
+        setCategoryFeed(data)
       })
   }, [userName])
 
   return (
     <Box>
-      {myData?.categories.map(c => <Category key={c} categoryName={c} userName={myData.userName}></Category>)}
+      {categoryFeed?.categories.map(c => <Category key={c} categoryName={c} userName={categoryFeed.userName} onCategoryClick={() => getMotivators(c)}></Category>)}
       <Typography>Hello</Typography>
       <Box>Categories</Box>
-      <Button>Suggest Activity</Button>
+      {returnedMotivator ? <Motivator title={returnedMotivator.title} description={returnedMotivator.description} userName={returnedMotivator.userName} category={returnedMotivator.category}></Motivator> : "Nothing to show"}
+      {/* <Button onClick={() => getMotivators()}>Get motivator feed</Button> */}
+      {/* <Button onClick={() => getMotivator()}>Get motivator</Button> */}
     </Box>
   )
 }
